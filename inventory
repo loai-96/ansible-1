@@ -1,2 +1,7 @@
+[web_servers]
 192.168.58.101
+192.168.58.103 ansible_python_interpreter=/usr/libexec/platform-python
+
+[db_servers]
 192.168.58.102
+
