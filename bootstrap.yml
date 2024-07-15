@@ -1,0 +1,46 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: install updates (RedHat)
+    tags: always
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "RedHat"
+
+  - name: install updates (Ubuntu)
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: all
+  become: true
+  tasks:
+  - name: create loaii user
+    tags: always
+    user:
+      name: loaii
+      groups: root
+
+  - name: add ssh key for loaii
+    tags: always
+    authorized_key:
+      user: loaii
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINAC7Em9WvU/v+YdoCi4GrdYmknTjcZCpp9tTSxMkDle ansible"
+
+  - name: add sudoers file for loaii
+    tags: always
+    copy:
+      src: sudoer_loaii
+      dest: /etc/sudoers.d/loaii
+      owner: root
+      group: root
+      mode: 0440
+
+
+...

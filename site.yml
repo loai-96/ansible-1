@@ -7,16 +7,45 @@
   - name: install updates (RedHat)
     tags: always
     dnf:
-      update_only: yes
       update_cache: yes
+    changed_when: false
     when: ansible_distribution == "RedHat"
 
   - name: install updates (Ubuntu)
     tags: always
     apt:
-      upgrade: dist
       update_cache: yes
+    changed_when: false
     when: ansible_distribution == "Ubuntu"
+
+
+  - name: add ssh key for loaii
+    tags: always
+    authorized_key:
+      user: loaii
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINAC7Em9WvU/v+YdoCi4GrdYmknTjcZCpp9tTSxMkDle ansible"
+
+
+- hosts: workstations
+  become: true
+  tasks:
+
+  - name: install unzip
+    package:
+      name: unzip
+  - name: install terraform
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/1.9.2/terraform_1.9.2_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 0755
+      owner: root
+      group: root
+
+
+
+
+
 
 - hosts: web_servers
   become: true
@@ -43,6 +72,19 @@
         - php
       state: latest
     when: ansible_distribution == "RedHat"
+
+  - name: start httpd (RedHat)
+    tags: apache,redhat,httpd
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution == "RedHat"
+
+
+
+
+
 
   - name: copy default html file for site
     tags: apache,apache2,httpd
